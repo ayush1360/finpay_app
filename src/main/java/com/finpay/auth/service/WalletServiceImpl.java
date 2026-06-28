@@ -1,5 +1,6 @@
 package com.finpay.auth.service;
 
+import com.finpay.auth.dto.request.DepositRequest;
 import com.finpay.auth.dto.response.WalletResponse;
 import com.finpay.auth.entity.User;
 import com.finpay.auth.entity.Wallet;
@@ -30,6 +31,35 @@ public class WalletServiceImpl implements WalletService {
 
         Wallet wallet = walletRepository.findByUserId(user.getId())
                 .orElseThrow(() -> new RuntimeException("Wallet not found"));
+
+        return WalletResponse.builder()
+                .walletNumber(wallet.getWalletNumber())
+                .balance(wallet.getBalance())
+                .currency(wallet.getCurrency())
+                .status(wallet.getStatus().name())
+                .build();
+    }
+
+    @Override
+    public WalletResponse deposit(DepositRequest request) {
+        Authentication authentication =
+                SecurityContextHolder.getContext().getAuthentication();
+
+        String email = authentication.getName();
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        Wallet wallet = walletRepository.findByUserId(user.getId())
+                .orElseThrow(() ->
+                        new RuntimeException("Wallet not found"));
+
+        wallet.setBalance(
+                wallet.getBalance().add(request.getAmount())
+        );
+
+        walletRepository.save(wallet);
 
         return WalletResponse.builder()
                 .walletNumber(wallet.getWalletNumber())
