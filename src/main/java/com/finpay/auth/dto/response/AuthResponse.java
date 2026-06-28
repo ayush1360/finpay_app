@@ -1,4 +1,4 @@
-package com.finpay.auth.dto;
+package com.finpay.auth.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
